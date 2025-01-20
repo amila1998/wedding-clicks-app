@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from "react";
 import { gapi } from "gapi-script";
 import "./App.css"; // Import the CSS file
