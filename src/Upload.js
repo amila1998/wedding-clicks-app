@@ -37,7 +37,7 @@ const Upload = () => {
     try {
       const accessToken = gapi.auth.getToken().access_token;
       const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&fields=files(id,name,webViewLink,thumbnailLink)&key=${API_KEY}`,
+        `https://www.googleapis.com/drive/v3/files?q='${FOLDER_ID}'+in+parents&fields=files(id,name,thumbnailLink)&key=${API_KEY}`,
         {
           headers: new Headers({ Authorization: `Bearer ${accessToken}` }),
         }

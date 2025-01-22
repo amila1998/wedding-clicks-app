@@ -32,7 +32,7 @@ const Slideshow = ({ accessToken }) => {
                 <div className="slideshow">
                     <div className="slideshow-image">
                         <img
-                            src={photos[currentPhotoIndex]?.webViewLink}
+                            src={photos[currentPhotoIndex]?.thumbnailLink}
                             alt={photos[currentPhotoIndex]?.name}
                         />
                     </div>
