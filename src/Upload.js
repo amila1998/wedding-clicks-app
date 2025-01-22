@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { gapi } from "gapi-script";
 import "./App.css"; // Import the CSS file
+import { toast, ToastContainer } from "react-toastify";
+import Loading from "./Loader/Loading";
 
 const CLIENT_ID = "556276449489-30aijmpjelqie282coomp16k9uan9404.apps.googleusercontent.com";
 const API_KEY = "AIzaSyA-J52ik4lg43UOxxhiUYcEPiomODwt-rU";
@@ -9,8 +11,9 @@ const SCOPES = "https://www.googleapis.com/auth/drive.file";
 const FOLDER_ID = "1pWRVKRWixgFAbZCgbKBvYtsgUBxDpiH9";
 
 const Upload = () => {
+  const fileInputRef = React.useRef(null);
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFile, setSelectedFile] = useState("");
   const [uploadStatus, setUploadStatus] = useState("");
   const [photos, setPhotos] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +36,7 @@ const Upload = () => {
   };
 
   // Open slideshow in a new tab
-  const openSlideshowInNewTab = async() => {
+  const openSlideshowInNewTab = async () => {
     try {
       const accessToken = gapi.auth.getToken().access_token;
       const response = await fetch(
@@ -50,11 +53,13 @@ const Upload = () => {
           alert("No photos available to display.");
           return;
         }
-    
+
+        localStorage.removeItem("slideshowPhotos");
+        localStorage.removeItem("currentPhotoIndex");
         // Save photos to localStorage
         localStorage.setItem("slideshowPhotos", JSON.stringify(data.files));
         localStorage.setItem("currentPhotoIndex", JSON.stringify(currentPhotoIndex));
-    
+
         // Open a new tab and pass the slideshow page URL
         const newTab = window.open("/slideshow", "_blank");
         if (!newTab) {
@@ -115,6 +120,11 @@ const Upload = () => {
       if (response.ok) {
         const data = await response.json();
         setUploadStatus(`File uploaded successfully. File ID: ${data.id}`);
+        setSelectedFile("");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""; // Clear the input field
+        }
+        toast.info("Upload completed. Thank you !")
       } else {
         setUploadStatus("Failed to upload file. Please try again.");
       }
@@ -153,31 +163,44 @@ const Upload = () => {
 
   return (
     <div className="container">
-      <h2>HASHINI & AMILA</h2>
-      <h3>Wedding Day Clicks</h3>
-      {!isSignedIn ? (
-        <button onClick={handleSignIn}>Sign in with Google</button>
-      ) : (
-        <></>
-      )}
+      {
+        isLoading && <>
+          <Loading />
 
-      {isSignedIn && (
-        <div>
-          <input type="file" onChange={handleFileChange} accept="image/*" />
-          <button onClick={handleUpload} disabled={!selectedFile}>
-            Upload
-          </button>
-          <br />
-          <br />
-          <br />
-          <div style={{
+        </>
+      }
+      <>
+
+        <h2>HASHINI & AMILA</h2>
+        <h3>Share your wedding day clicks with us </h3>
+        {!isSignedIn ? (
+          <button onClick={handleSignIn}>Sign in with Google</button>
+        ) : (
+          <></>
+        )}
+
+        {isSignedIn && (
+          <div>
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" />
+            <button onClick={handleUpload} disabled={!selectedFile}>
+              Upload
+            </button>
+            <br />
+            <br />
+            <br />
+            {/* <div style={{
             cursor: "pointer"
           }}
            
               onClick={openSlideshowInNewTab}
-          >Slide Show</div>
-        </div>
-      )}
+          >Slide Show</div> */}
+          </div>
+        )}
+
+      </>
+
+      <ToastContainer />
+
     </div>
   );
 };
